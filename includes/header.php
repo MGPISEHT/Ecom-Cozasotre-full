@@ -1,3 +1,8 @@
+<?php
+session_start(); // Start the session
+?>
+
+
 <header>
     <!-- Header desktop -->
     <div class="container-menu-desktop">
@@ -32,7 +37,7 @@
                     <ul class="main-menu">
                         <li class="active-menu">
                             <a href="index.php">Home</a>
-                           
+
                         </li>
 
                         <li>
@@ -64,18 +69,10 @@
                         <i class="zmdi zmdi-search"></i>
                     </div>
 
-                    <div
-                        class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart"
-                        data-notify="2">
+                    <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" name="cart" id="cart">
                         <i class="zmdi zmdi-shopping-cart"></i>
                     </div>
 
-                    <a
-                        href="#"
-                        class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti"
-                        data-notify="0">
-                        <i class="zmdi zmdi-favorite-outline"></i>
-                    </a>
                 </div>
             </nav>
         </div>
@@ -142,11 +139,6 @@
         <ul class="main-menu-m">
             <li>
                 <a href="index.php">Home</a>
-                <ul class="sub-menu-m">
-                    <li><a href="index.php">Homepage 1</a></li>
-                    <li><a href="home-02.php">Homepage 2</a></li>
-                    <li><a href="home-03.php">Homepage 3</a></li>
-                </ul>
                 <span class="arrow-main-menu-m">
                     <i class="fa fa-angle-right" aria-hidden="true"></i>
                 </span>
@@ -195,3 +187,15 @@
         </div>
     </div>
 </header>
+<script>
+    function updateCart(cartData) {
+        var cartItems = JSON.parse(cartData);
+        var itemCount = cartItems.reduce(function(acc, item) {
+            return acc + item.quantity;
+        }, 0);
+
+        // Update the cart icon count
+        var cartIcon = document.querySelector('#cart');
+        cartIcon.setAttribute('data-notify', itemCount);
+    }
+</script>

@@ -1,11 +1,11 @@
-<?php
-      session_start();
-      if (!isset($_SESSION["valid"])) {
-       header("Location: login.php");  //redelixt to index.php (បើមិនបាន​ login រួចហើយ ទេ​នោះ​ទៅ​ទំព័រ​ login)
-      exit(0);
-      }
+<!-- //<?php
+    //  session_start();
+    //  if (!isset($_SESSION["valid"])) {
+     //  header("Location: login.php");  //redelixt to index.php (បើមិនបាន​ login រួចហើយ ទេ​នោះ​ទៅ​ទំព័រ​ login)
+     // exit(0);
+    //  }
       
-      ?>
+      //?> -->
 
 <!doctype html>
 <html lang="en">

@@ -83,17 +83,19 @@ include './function.php';
             <div class="container-fluid">
                 <div class="container-fluid">
                     <div class="card">
-                        <div class="card-body">
+                        
                             <h5 class="card-title fw-semibold mb-4">View Categories</h5>
                             <div class="card mb-0">
-                                <div class="card-body">
+                               
                                     <!-- Table to display categories -->
                                     <table class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
                                                 <th>Category Name</th>
                                                 <th>Description</th>
+                                                <th>Status</th>
+                                                <th>Create</th>
+                                                <th>Update</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -103,7 +105,7 @@ include './function.php';
                                             <?php global $conn;
                                             try {
                                                 // Prepare the SQL query
-                                                $sql = "SELECT id, title, meta_description FROM categories"; // Ensure these columns exist
+                                                $sql = "SELECT id, title, meta_description, status, created_at, updated_at FROM categories"; // Ensure these columns exist
                                                 $stmt = $conn->prepare($sql);
                                                 $stmt->execute();
                                                 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -113,9 +115,11 @@ include './function.php';
                                             <?php if (!empty($categories)): ?>
                                                 <?php foreach ($categories as $row): ?>
                                                     <tr>
-                                                        <td><?php echo htmlspecialchars($row['id'] ?? ''); ?></td>
                                                         <td><?php echo htmlspecialchars($row['title'] ?? ''); ?></td>
                                                         <td><?php echo htmlspecialchars($row['meta_description'] ?? ''); ?></td>
+                                                        <td><?php echo htmlspecialchars($row['status'] ?? ''); ?></td>
+                                                        <td><?php echo htmlspecialchars($row['created_at'] ?? ''); ?></td>
+                                                        <td><?php echo htmlspecialchars($row['updated_at'] ?? ''); ?></td>
                                                         
                                                         <td>
                                                             <a class="btn btn-primary" href="./pages/editCategory.php?id=<?= $row['id']; ?>">Edit</a> |
@@ -132,9 +136,9 @@ include './function.php';
 
                                         </tbody>
                                     </table>
-                                </div>
+                                
                             </div>
-                        </div>
+                      
                         <a href="addCategories.php" class="btn btn-success ">Add New Categories</a>
                     </div>
                 </div>

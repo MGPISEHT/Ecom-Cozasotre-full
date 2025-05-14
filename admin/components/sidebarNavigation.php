@@ -64,11 +64,9 @@
             </a>
             <ul class="submenu">
                 <li>
-                    <a href="addCategories.php" class="submenu-link">Add Categories</a>
+                    <a href="manageInvice.php" class="submenu-link">Manage Invioces</a>
                 </li>
-                <li>
-                    <a href="viewCategories.php" class="submenu-link">View Categories</a>
-                </li>
+                
             </ul>
         </li>
 

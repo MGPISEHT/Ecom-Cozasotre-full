@@ -39,81 +39,52 @@ include 'function.php'; // Include functions
             <!-- Header Start -->
             <header class="app-header">
                 <nav class="navbar navbar-expand-lg navbar-light">
-                    <!-- Header content -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item d-block d-xl-none">
+                            <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
+                                <i class="ti ti-menu-2"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-icon-hover" href="javascript:void(0)">
+                                <i class="ti ti-bell-ringing"></i>
+                                <div class="notification bg-primary rounded-circle"></div>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+                        <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+                            <a href="https://adminmart.com/product/modernize-free-bootstrap-admin-dashboard/" target="_blank" class="btn btn-primary">Download Free</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <img src="./assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                                    <div class="message-body">
+                                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                                            <i class="ti ti-user fs-6"></i>
+                                            <p class="mb-0 fs-3">My Profile</p>
+                                        </a>
+                                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                                            <i class="ti ti-mail fs-6"></i>
+                                            <p class="mb-0 fs-3">My Account</p>
+                                        </a>
+                                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                                            <i class="ti ti-list-check fs-6"></i>
+                                            <p class="mb-0 fs-3">My Task</p>
+                                        </a>
+                                        <a href="./login.php" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </nav>
             </header>
             <!-- Header End -->
 
-            <div class="container-fluid">
-                <div class="card">
-                    <div class="card-body">
-                        <?php
-                        if (isset($_SESSION['message'])) {
-                        ?>
-                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                <strong>Hey!</strong> <?= $_SESSION['message'] ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        <?php
-                            unset($_SESSION['message']);
-                        }
-                        ?>
-                        <h5 class="card-title fw-semibold mb-4">Add Products</h5>
-                        <div class="card mb-0">
-                            <div class="container-fluid">
-                                <!-- Add Product Form -->
-                                <form action="function.php" method="post" enctype="multipart/form-data">
-                                    <!-- Product Name -->
-                                    <div class="mb-3">
-                                        <label for="proName" class="form-label">Product Name</label>
-                                        <input type="text" class="form-control" id="proName" name="proName" required>
-                                    </div>
-
-                                    <!-- Product Description -->
-                                    <div class="mb-3">
-                                        <label for="proDescription" class="form-label">Description</label>
-                                        <textarea class="form-control" id="proDescription" name="proDescription" rows="3"></textarea>
-                                    </div>
-
-                                    <!-- Product Price -->
-                                    <div class="mb-3">
-                                        <label for="proPrice" class="form-label">Price</label>
-                                        <input type="number" step="0.01" class="form-control" id="proPrice" name="proPrice" required>
-                                    </div>
-
-                                    <!-- Product Category -->
-                                    <div class="mb-3">
-                                        <label for="category_id" class="form-label">Category</label>
-                                        <select class="form-control" id="category_id" name="category_id" required>
-                                            <option value="">--- Select Category ---</option>
-                                            <?php
-                                            // Fetch categories from the database
-                                            $sql = "SELECT * FROM categories";
-                                            $stmt = $conn->prepare($sql);
-                                            $stmt->execute();
-                                            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                                            foreach ($categories as $category) {
-                                                echo "<option value='" . htmlspecialchars($category['id']) . "'>" . htmlspecialchars($category['title']) . "</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
-                                    <!-- Product Image -->
-                                    <div class="mb-3">
-                                        <label for="proImage" class="form-label">Product Image</label>
-                                        <input type="file" class="form-control" id="proImage" name="proImage" accept="image/*" required>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <button type="submit" name="add-product" class="btn btn-primary">Add Product</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 

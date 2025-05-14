@@ -100,38 +100,39 @@ function deleteCategory()
     }
 }
 
-// update category
 
 // add products
-function addProducts($conn, $name, $description, $price, $categoryId, $image) {
+function addProducts($conn, $name, $description, $price, $stock, $categoryId, $image)
+{
     try {
-        $sql = "INSERT INTO products (name, description, price, category_id, image) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO products (name, description, price, stock_quantity, category_id, image) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$name, $description, $price, $categoryId, $image]);
-        return true; // Indicate success
+        $stmt->execute([$name, $description, $price, $stock, $categoryId, $image]);
+        return true; 
     } catch (PDOException $e) {
-        error_log("Error adding product: " . $e->getMessage()); // Log the error
-        return false; // Indicate failure
+        error_log("Error adding product: " . $e->getMessage()); 
+        return false; 
     }
 }
 
-// Handle form submission
+// add products 
 if (isset($_POST['add-product'])) {
     $name = $_POST['proName'];
     $description = $_POST['proDescription'];
     $price = $_POST['proPrice'];
+    $stock = $_POST['stock_quantity'];
     $categoryId = $_POST['category_id'];
     $image = null;
 
     // Validate required fields
-    if (empty($name) || empty($description) || empty($price) || empty($categoryId)) {
+    if (empty($name) || empty($description) || empty($price) || empty($stock) || empty($categoryId)) {
         header("Location: addProducts.php?error=All fields are required.");
         exit();
     }
 
     // Handle file upload
     if (isset($_FILES['proImage']) && $_FILES['proImage']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = 'uploads/products/';
+        $uploadDir = '../uploads/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
@@ -146,7 +147,7 @@ if (isset($_POST['add-product'])) {
     }
 
     // Add product to database
-    if (addProducts($conn, $name, $description, $price, $categoryId, $image)) {
+    if (addProducts($conn, $name, $description, $price, $stock, $categoryId, $image)) {
         header("Location: viewProducts.php?message=Product added successfully.");
         exit();
     } else {
@@ -154,5 +155,121 @@ if (isset($_POST['add-product'])) {
         exit();
     }
 }
+
+
+// update products
+if (isset($_POST['update_product'])) {
+    $product_id = $_POST['product_id'];
+    $name = htmlspecialchars($_POST['name']);
+    $description = htmlspecialchars($_POST['description']);
+    $price = filter_var($_POST['price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+    $stock = filter_var($_POST['stock_quantity'], FILTER_SANITIZE_NUMBER_INT);
+    $category_id = filter_var($_POST['category_id'], FILTER_SANITIZE_NUMBER_INT);
+    $current_image = $_POST['current_image'];
+    $image = $current_image;
+    $uploadError = null;
+
+    // Validate required fields
+    if (empty($name) || empty($description) || empty($price) || $price === false || empty($stock) || $stock === false || empty($category_id) || $category_id === false) {
+        header("Location: editProduct.php?id=$product_id&error=All fields are required and must be valid.");
+        exit();
+    }
+
+    // Handle file upload
+    if (isset($_FILES['proImage']) && $_FILES['proImage']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = '../uploads/';
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0777, true)) {
+            }
+        }
+
+
+        $imageName = uniqid() . '_' . basename($_FILES['proImage']['name']);
+        $imagePath = $uploadDir . $imageName;
+        if (move_uploaded_file($_FILES['proImage']['tmp_name'], $imagePath)) {
+            $image = $imagePath;
+        } else {
+            header("Location: addProducts.php?error=Failed to upload image.");
+            exit();
+        }
+
+
+        if ($uploadError) {
+            header("Location: editProduct.php?id=$product_id&error=" . urlencode($uploadError));
+            exit();
+        }
+    }
+
+    try {
+        $stmt = $conn->prepare("UPDATE products SET name = :name, description = :description, price = :price, category_id = :category_id, stock_quantity = :stock_quantity, image = :image WHERE id = :id");
+        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+        $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+        $stmt->bindParam(':price', $price, PDO::PARAM_STR);
+        $stmt->bindParam(':stock_quantity', $stock, PDO::PARAM_STR);
+        $stmt->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+        $stmt->bindParam(':image', $image, PDO::PARAM_STR);
+        $stmt->bindParam(':id', $product_id, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        header("Location: viewProducts.php?message=Product updated successfully.");
+        exit();
+    } catch (PDOException $e) {
+        header("Location: editProduct.php?id=$product_id&error=" . urlencode("Database error: " . $e->getMessage()));
+        exit();
+    }
+}
+
+
+// delete products
+
+// if (isset($_POST['update_product'])) {
+//     $product_id = $_POST['product_id'];
+//     $name = $_POST['name'];
+//     $description = $_POST['description'];
+//     $price = $_POST['price'];
+//     $stocl = $_POST['stock_quantity'];
+//     $category_id = $_POST['category_id'];
+//     $image = $_POST['current_image']; // Use current image if no new image is uploaded
+
+//     // Validate required fields
+//     if (empty($name) || empty($description) || empty($price) || empty($stock) || empty($category_id)) {
+//         header("Location: editProduct.php?id=$product_id&error=All fields are required.");
+//         exit();
+//     }
+
+//     // Handle file upload
+//     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+//         $uploadDir = '../uploads/';
+//         if (!is_dir($uploadDir)) {
+//             mkdir($uploadDir, 0777, true);
+//         }
+//         $imageName = uniqid() . '_' . basename($_FILES['image']['name']);
+//         $imagePath = $uploadDir . $imageName;
+//         if (move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
+//             $image = $imagePath;
+//         }
+//     }
+
+//     try {
+//         $stmt = $conn->prepare("UPDATE products SET name = :name, description = :description, price = :price, stock_quantity = :stock_quantity, category_id = :category_id, image = :image WHERE id = :id");
+//         $stmt->execute([
+//             ':name' => $name,
+//             ':description' => $description,
+//             ':price' => $price,
+//             'stock_quantity' => $stock,
+//             ':category_id' => $category_id,
+//             ':image' => $image,
+//             ':id' => $product_id
+//         ]);
+
+//         header("Location: ../viewProducts.php?message=Product updated successfully.");
+//         exit();
+//     } catch (PDOException $e) {
+//         header("Location: editProduct.php?id=$product_id&error=" . $e->getMessage());
+//         exit();
+//     }
+// }
+
 
 ?>

@@ -19,7 +19,7 @@
             if ($stmt->rowCount() > 0) {
                 ?>
             <script type="text/javascript">
-                alert("Category added successfully.");
+                alert("Category Delete successfully.");
                 window.location.href = "../viewCategories.php";
             </script>
             
