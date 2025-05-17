@@ -69,8 +69,8 @@
                                                 $stmt->execute();
                                                 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                                foreach ($categories as $category) {
-                                                    echo "<option value='" . htmlspecialchars($category['id']) . "'>" . htmlspecialchars($category['title']) . "</option>";
+                                                foreach ($categories as $row) {
+                                                    echo "<option value='" . htmlspecialchars($row['id']) . "'>" . htmlspecialchars($row['title']) . "</option>";
                                                 }
                                                 ?>
                                             </select>
@@ -92,7 +92,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

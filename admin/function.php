@@ -12,7 +12,7 @@ if (isset($_POST["add-categories"])) {
     $categoryStatus = isset($_POST["categoryStatus"]) ? 1 : 0; // Check if status is active
     try {
         // Prepare the SQL query
-        $sql = "INSERT INTO categories (title, meta_keyword, meta_title, meta_description, status) 
+        $sql = "INSERT INTO categories (title, meta_keyword, meta_title, meta_description, status)
                 VALUES (:title, :meta_keyword, :meta_title, :meta_description, :status)";
 
         // Prepare and execute the statement
@@ -24,21 +24,89 @@ if (isset($_POST["add-categories"])) {
             ':meta_description' => $metaDescription,
             ':status' => $categoryStatus
         ]);
-?>
-        <script type="text/javascript">
-            alert("Category added successfully.");
-            window.location.href = "viewCategories.php";
-        </script>
-    <?php
-
+        header("Location: viewCategories.php?message=User added successfully!");
+        exit();
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
-    ?>
-        <script type="text/javascript">
-            alert("Error: <?php echo $e->getMessage(); ?>");
-            window.location.href = "addCategories.php";
-        </script>
-<?php
+    }
+}
+
+// ========================== Edit Category =================================
+// Sanitize and validate the ID from GET request
+if (isset($_POST["update-categories"])) {
+    // Sanitize and validate the ID
+    $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT); // Get ID from POST for updates
+    if (!$id) {
+        $_SESSION['message'] = "Invalid category ID for update!";
+        header("Location: ../viewCategories.php"); // Redirect to the view page
+        exit();
+    }
+
+    // Handle form submission for updating category
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update-category'])) {
+        // Sanitize inputs
+        $title = htmlspecialchars(trim($_POST['title']));
+        $metaKeyword = htmlspecialchars(trim($_POST['metaKeyword'] ?? ''));
+        $metaTitle = htmlspecialchars(trim($_POST['metaTitle'] ?? ''));
+        $metaDescription = htmlspecialchars(trim($_POST['metaDescription']));
+        $categoryStatus = isset($_POST["categoryStatus"]) ? 1 : 0; // Check if status is active
+
+        // Validate inputs (you can add more specific validation)
+        if (empty($title) || empty($metaDescription)) {
+            $_SESSION['message'] = "Category Title and Meta Description are required!";
+            header("Location: editCategory.php?id=$id");
+            exit();
+        }
+
+        // Update the category
+        try {
+            $stmt = $conn->prepare("UPDATE categories SET title = ?, meta_keyword = ?, meta_title = ?, meta_description = ?, status = ? WHERE id = ?");
+            if ($stmt->execute([$title, $metaKeyword, $metaTitle, $metaDescription, $categoryStatus, $id])) {
+                $_SESSION['message'] = "Category updated successfully!";
+                header("Location: ../viewCategories.php");
+                exit();
+            } else {
+                $_SESSION['message'] = "Error updating category.";
+                header("Location: editCategory.php?id=$id");
+                exit();
+            }
+        } catch (PDOException $e) {
+            $_SESSION['message'] = "Error updating category: " . $e->getMessage();
+            header("Location: editCategory.php?id=$id");
+            exit();
+        }
+    } else {
+        // If the form wasn't submitted for update, but the 'update-categories' block was accessed,
+        // it likely means we need to fetch data for the edit form.
+
+        // Sanitize and validate the ID from GET request (for displaying the edit form)
+        $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
+        if (!$id) {
+            $_SESSION['message'] = "Invalid category ID for editing!";
+            header("Location: ../viewCategories.php"); // Redirect to the view page
+            exit();
+        }
+
+        // Fetch the category details for editing
+        try {
+            $stmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
+            $stmt->execute([$id]);
+            $category = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$category) {
+                $_SESSION['message'] = "Category not found!";
+                header("Location: ../viewCategories.php"); // Redirect to the view page
+                exit();
+            }
+
+            // You would typically return or make $category available to your HTML form here.
+            // For this fix, I'm assuming you're including this code in the same file as the form.
+
+        } catch (PDOException $e) {
+            $_SESSION['message'] = "Error fetching category details: " . $e->getMessage();
+            header("Location: ../viewCategories.php"); // Redirect to the view page
+            exit();
+        }
     }
 }
 
@@ -101,21 +169,19 @@ function deleteCategory()
 }
 
 
-// add products
+// ========================================================= add products ==========================================================
 function addProducts($conn, $name, $description, $price, $stock, $categoryId, $image)
 {
     try {
         $sql = "INSERT INTO products (name, description, price, stock_quantity, category_id, image) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$name, $description, $price, $stock, $categoryId, $image]);
-        return true; 
+        return true;
     } catch (PDOException $e) {
-        error_log("Error adding product: " . $e->getMessage()); 
-        return false; 
+        error_log("Error adding product: " . $e->getMessage());
+        return false;
     }
 }
-
-// add products 
 if (isset($_POST['add-product'])) {
     $name = $_POST['proName'];
     $description = $_POST['proDescription'];
@@ -157,7 +223,7 @@ if (isset($_POST['add-product'])) {
 }
 
 
-// update products
+// ==================================== update products ===========================================================
 if (isset($_POST['update_product'])) {
     $product_id = $_POST['product_id'];
     $name = htmlspecialchars($_POST['name']);
@@ -220,56 +286,105 @@ if (isset($_POST['update_product'])) {
     }
 }
 
+// ========================== add Users ================================
 
-// delete products
+if (isset($_POST['add-user'])) {
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash the password
+    $email = $_POST['email'];
+    $role = $_POST['role'];
 
-// if (isset($_POST['update_product'])) {
-//     $product_id = $_POST['product_id'];
-//     $name = $_POST['name'];
-//     $description = $_POST['description'];
-//     $price = $_POST['price'];
-//     $stocl = $_POST['stock_quantity'];
-//     $category_id = $_POST['category_id'];
-//     $image = $_POST['current_image']; // Use current image if no new image is uploaded
+    try {
+        // Prepare the SQL query
+        $sql = "INSERT INTO users (username, password, email, role) 
+                VALUES (:username, :password, :email, :role)";
+        $stmt = $conn->prepare($sql);
 
-//     // Validate required fields
-//     if (empty($name) || empty($description) || empty($price) || empty($stock) || empty($category_id)) {
-//         header("Location: editProduct.php?id=$product_id&error=All fields are required.");
-//         exit();
-//     }
+        // Bind parameters
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':password', $password);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':role', $role);
 
-//     // Handle file upload
-//     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-//         $uploadDir = '../uploads/';
-//         if (!is_dir($uploadDir)) {
-//             mkdir($uploadDir, 0777, true);
-//         }
-//         $imageName = uniqid() . '_' . basename($_FILES['image']['name']);
-//         $imagePath = $uploadDir . $imageName;
-//         if (move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
-//             $image = $imagePath;
-//         }
-//     }
+        // Execute the query
+        $stmt->execute();
 
-//     try {
-//         $stmt = $conn->prepare("UPDATE products SET name = :name, description = :description, price = :price, stock_quantity = :stock_quantity, category_id = :category_id, image = :image WHERE id = :id");
-//         $stmt->execute([
-//             ':name' => $name,
-//             ':description' => $description,
-//             ':price' => $price,
-//             'stock_quantity' => $stock,
-//             ':category_id' => $category_id,
-//             ':image' => $image,
-//             ':id' => $product_id
-//         ]);
+        // Redirect to the users page with a success message
+        header("Location: viewUsers.php?message=User added successfully!");
+        exit();
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
 
-//         header("Location: ../viewProducts.php?message=Product updated successfully.");
-//         exit();
-//     } catch (PDOException $e) {
-//         header("Location: editProduct.php?id=$product_id&error=" . $e->getMessage());
-//         exit();
-//     }
-// }
+// ========================== Update Users =================================
+if (isset($_POST['update-user'])) {
+    $userId = $_POST['user_id']; // Assuming you have a hidden input field with the user ID
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $role = $_POST['role'];
 
+    try {
+        // ពិនិត្យមើលថាតើឈ្មោះអ្នកប្រើប្រាស់ថ្មីមានរួចហើយឬនៅ សម្រាប់អ្នកប្រើប្រាស់ផ្សេងទៀត
+        $checkSql = "SELECT COUNT(*) FROM users WHERE username = :username AND id != :id";
+        $checkStmt = $conn->prepare($checkSql);
+        $checkStmt->bindParam(':username', $username);
+        $checkStmt->bindParam(':id', $userId, PDO::PARAM_INT);
+        $checkStmt->execute();
+        $userCount = $checkStmt->fetchColumn();
 
-?>
+        if ($userCount > 0) {
+            // បង្ហាញសារកំហុសប្រសិនបើឈ្មោះអ្នកប្រើប្រាស់ថ្មីមានរួចហើយ
+            header("Location: editUser.php?id=$userId&error=ឈ្មោះអ្នកប្រើប្រាស់នេះមានរួចហើយ។ សូមជ្រើសរើសឈ្មោះផ្សេងទៀត។");
+            exit();
+        } else {
+            // ប្រសិនបើឈ្មោះអ្នកប្រើប្រាស់មិនទាន់មានទេ ឬជាឈ្មោះអ្នកប្រើប្រាស់បច្ចុប្បន្ន ធ្វើបច្ចុប្បន្នភាពព័ត៌មានអ្នកប្រើប្រាស់
+            $sql = "UPDATE users SET username = :username, email = :email, role = :role WHERE id = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':username', $username);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':role', $role);
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Redirect to the users page with a success message
+            header("Location: viewUsers.php?message=ព័ត៌មានអ្នកប្រើប្រាស់បានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ!");
+            exit();
+        }
+    } catch (PDOException $e) {
+        header("Location: editUser.php?id=$userId&error=កំហុសមូលដ្ឋានទិន្នន័យ: " . urlencode($e->getMessage()));
+        exit();
+    }
+}
+
+// ========================== Delete Users ==================================
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $userIdToDelete = $_GET['id'];
+
+    try {
+        // Prepare the SQL query to delete the user
+        $sql = "DELETE FROM users WHERE id = :id";
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter
+        $stmt->bindParam(':id', $userIdToDelete, PDO::PARAM_INT);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Check if any rows were affected (meaning the user existed)
+        if ($stmt->rowCount() > 0) {
+            // Redirect to the users page with a success message
+            header("Location: viewUsers.php?message=User deleted successfully!");
+            exit();
+        } else {
+            // Redirect with an error message if the user wasn't found
+            header("Location: viewUsers.php?error=User not found!");
+            exit();
+        }
+    } catch (PDOException $e) {
+        // Display an error message if there's a database issue
+        header("Location: viewUsers.php?error=Error deleting user: " . urlencode($e->getMessage()));
+        exit();
+    }
+}

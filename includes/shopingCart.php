@@ -1,6 +1,147 @@
 <?php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
+
+    // Functions ពីមុន (getCart, updateCart, removeFromCart, updateQuantities, addToCart) នៅទីនេះ
+
+    // រក្សាទុកព័ត៌មានអ្នកទូទាត់ពីទម្រង់
+    if (isset($_POST['username'])) {
+        $_SESSION['payer_info'] = [
+            'username' => $_POST['username'],
+            'email' => $_POST['email'],
+            'phone' => $_POST['phone'],
+            'pin_code' => $_POST['pin-code'],
+            'address' => $_POST['address'],
+        ];
+    }
+
+    // យកព័ត៌មានអ្នកទូទាត់
+    function getPayerInfo()
+    {
+        return isset($_SESSION['payer_info']) ? $_SESSION['payer_info'] : [];
+    }
+
+    //Handle add to cart, remove item, update quantities (ដូចមុន)
+
+}
+
+// Function to get the cart from the session
+function getCart()
+{
+    return isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+}
+
+// Function to update the cart in the session
+function updateCart($newCart)
+{
+    $_SESSION['cart'] = $newCart;
+}
+
+// Function to remove an item from the cart
+function removeFromCart($itemId)
+{
+    $cart = getCart();
+    $itemRemoved = false;
+
+    foreach ($cart as $key => $item) {
+        if ($item['id'] == $itemId) {
+            unset($cart[$key]);
+            $itemRemoved = true;
+            break;
+        }
+    }
+
+    updateCart(array_values($cart)); // Re-index after removal
+    return $itemRemoved;
+}
+
+// Function to update item quantities in the cart
+function updateQuantities($cartData)
+{
+    $cart = getCart();
+    $updated = false;
+
+    foreach ($cartData as $itemData) {
+        $itemId = $itemData['id'];
+        $newQuantity = intval($itemData['quantity']);
+
+        foreach ($cart as &$item) { // Use reference to modify original array
+            if ($item['id'] == $itemId) {
+                $item['quantity'] = $newQuantity;
+                $updated = true;
+                break;
+            }
+        }
+    }
+    updateCart($cart);
+    return $updated;
+}
+
+// Function to add item to cart
+function addToCart($itemToAdd)
+{
+    $cart = getCart();
+    $itemFound = false;
+    foreach ($cart as &$item) {
+        if ($item['id'] == $itemToAdd['id']) {
+            $item['quantity'] += $itemToAdd['quantity'];
+            $itemFound = true;
+            break;
+        }
+    }
+    if (!$itemFound) {
+        $cart[] = $itemToAdd;
+    }
+    updateCart($cart);
+}
+
+//Handle add to cart.
+if (isset($_POST['action']) && $_POST['action'] == 'addToCart') {
+    $itemToAdd = array(
+        'id' => $_POST['id'],
+        'name' => $_POST['name'],
+        'price' => floatval($_POST['price']),
+        'image' => $_POST['image'],
+        'quantity' => intval($_POST['quantity'])
+    );
+
+    addToCart($itemToAdd);
+    echo json_encode(['success' => true, 'message' => 'Item added to cart']);
+    exit();
+}
+
+// Handle remove item
+if (isset($_POST['action']) && $_POST['action'] == 'removeItem') {
+    $itemId = $_POST['id'];
+    $removed = removeFromCart($itemId);
+
+    if ($removed) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Item not found in cart']);
+    }
+    exit();
+}
+
+// Handle update quantities
+if (isset($_POST['action']) && $_POST['action'] == 'updateQuantities') {
+    $cartData = $_POST['cart'];
+    $updated = updateQuantities($cartData);
+
+    $newCart = getCart();
+    $total = 0;
+    $itemTotals = [];
+    foreach ($newCart as $item) {
+        $total += $item['price'] * $item['quantity'];
+        $itemTotals[] =  number_format($item['price'] * $item['quantity'], 2); // Format each item total
+    }
+
+    if ($updated) {
+        echo json_encode(['success' => true, 'total' => number_format($total, 2), 'item_totals' => $itemTotals]); //send total and item totals
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Cart not updated']);
+    }
+    exit();
 }
 ?>
 
@@ -17,14 +158,16 @@ if (session_status() == PHP_SESSION_NONE) {
                                 <th class="column-3">Price</th>
                                 <th class="column-4">Quantity</th>
                                 <th class="column-5">Total</th>
+                                <th class="column-6">Action</th>
                             </tr>
 
                             <?php
-                            $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+                            $cart = getCart();
                             $total = 0;
 
                             foreach ($cart as $item) {
-                                $total += $item['price'] * $item['quantity'];
+                                $itemTotal = $item['price'] * $item['quantity'];
+                                $total += $itemTotal;
                                 echo '
                                 <tr class="table_row">
                                     <td class="column-1">
@@ -33,26 +176,42 @@ if (session_status() == PHP_SESSION_NONE) {
                                         </div>
                                     </td>
                                     <td class="column-2">' . htmlspecialchars($item['name']) . '</td>
-                                    <td class="column-3">$' . number_format($item['price'], 2) . '</td>
+                                    <td class="column-3 price-per-item" data-price="' . $item['price'] . '">$' . number_format($item['price'], 2) . '</td>
                                     <td class="column-4">
                                         <div class="wrap-num-product flex-w m-l-auto m-r-0">
                                             <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
                                                 <i class="fs-16 zmdi zmdi-minus"></i>
                                             </div>
-                                            <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product' . $item['id'] . '" value="' . $item['quantity'] . '">
+                                            <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product' . $item['id'] . '" value="' . $item['quantity'] . '" data-id="' . $item['id'] . '">
                                             <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
                                                 <i class="fs-16 zmdi zmdi-plus"></i>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="column-5">$' . number_format($item['price'] * $item['quantity'], 2) . '</td>
+                                    <td class="column-5 product-total">$' . number_format($itemTotal, 2) . '</td>
+                                    <td class="column-6">
+                                        <button class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10 remove-item" data-id="' . $item['id'] . '">
+                                            Remove
+                                        </button>
+                                    </td>
                                 </tr>';
                             }
                             ?>
                         </table>
+
                     </div>
 
-                    
+                    <div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
+                        <div class="p-t-15">
+
+                            <div class="flex-w">
+                                <button class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer update-cart-btn" type="button">
+                                    Update Amount
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -70,7 +229,7 @@ if (session_status() == PHP_SESSION_NONE) {
                         </div>
 
                         <div class="size-209 p-t-1">
-                            <span class="mtext-110 cl2 cart-total">
+                            <span class="mtext-110 cl2 cart-subtotal">
                                 $<?php echo number_format($total, 2); ?>
                             </span>
                         </div>
@@ -78,47 +237,32 @@ if (session_status() == PHP_SESSION_NONE) {
                     </div>
 
                     <div class="flex-w flex-t bor12 p-t-15 p-b-30">
-                        <div class="size-208 w-full-ssm">
-                            <span class="stext-110 cl2">
-                                Shipping:
-                            </span>
-                        </div>
 
-                        <div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
-                            <p class="stext-111 cl6 p-t-2">
-                                There are no shipping methods available. Please double check your address, or contact us if you need any help.
-                            </p>
-
-                            <div class="p-t-15">
-                                <span class="stext-112 cl8">
-                                    Calculate Shipping
-                                </span>
-
-                                <div class="rs1-select2 rs2-select2 bor8 bg0 m-b-12 m-t-9">
-                                    <select class="js-select2" name="time">
-                                        <option>Select a country...</option>
-                                        <option>USA</option>
-                                        <option>UK</option>
-                                    </select>
-                                    <div class="dropDownSelect2"></div>
-                                </div>
-
-                                <div class="bor8 bg0 m-b-12">
-                                    <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="state" placeholder="State /  country">
-                                </div>
-
-                                <div class="bor8 bg0 m-b-22">
-                                    <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="postcode" placeholder="Postcode / Zip">
-                                </div>
-
-                                <div class="flex-w">
-                                    <div class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
-                                        Update Totals
-                                    </div>
-                                </div>
-
+                        <h4 class="mtext-109 cl2 p-b-30">
+                            Bassic Details
+                        </h4>
+                        <form method="post">
+                            <div class="bor8 bg0 m-b-22">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="username" placeholder="Username">
                             </div>
-                        </div>
+
+                            <div class="bor8 bg0 m-b-22">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="email" name="email" placeholder="Email Address">
+                            </div>
+
+                            <div class="bor8 bg0 m-b-22">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="phone" name="phone" placeholder="Phone">
+                            </div>
+
+                            <div class="bor8 bg0 m-b-22">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="pin-code" placeholder="Pin Code">
+                            </div>
+
+                            <div class="bor8 bg0 m-b-22">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="address" name="address" placeholder="Address">
+                            </div>
+                        </form>
+
                     </div>
 
                     <div class="flex-w flex-t p-t-27 p-b-33">
@@ -129,7 +273,7 @@ if (session_status() == PHP_SESSION_NONE) {
                         </div>
 
                         <div class="size-209 p-t-1">
-                            <span class="mtext-110 cl2">
+                            <span class="mtext-110 cl2 cart-total">
                                 $<?php echo number_format($total, 2); ?>
                             </span>
                         </div>
@@ -142,68 +286,36 @@ if (session_status() == PHP_SESSION_NONE) {
     </div>
 </form>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AfkfEA59DV9179OsB5kuRYFTzdu4Ap7KZTKe9peAbqHH7Q0L5JFJeQcDFKP9qEpvObffMNaTVILlUfqC&currency=USD"></script>
 <script>
     $(document).ready(function() {
+        // Event listener for quantity changes using event delegation
+        $(".table-shopping-cart").on("change", ".num-product", function() {
+            updateCartTotals(); // Update totals on quantity change
+        });
+
+        // Function to update the cart total and individual product totals
+        function updateCartTotals() {
+            let grandTotal = 0;
+            let itemTotals = [];
+            $(".table_row").each(function() {
+                let quantity = parseInt($(this).find(".num-product").val());
+                let price = parseFloat($(this).find(".price-per-item").data("price"));
+                let itemTotal = quantity * price;
+                $(this).find(".product-total").text("$" + itemTotal.toFixed(2));
+                grandTotal += itemTotal;
+                itemTotals.push(itemTotal.toFixed(2)); // Store formatted item total
+            });
+            $(".cart-total").text("$" + grandTotal.toFixed(2));
+            $(".cart-subtotal").text("$" + grandTotal.toFixed(2));
+            return {
+                grandTotal: grandTotal.toFixed(2),
+                itemTotals: itemTotals
+            }; // Return the totals
+        }
+
+        // Event listener for the "Update Amount" button
         $(".update-cart-btn").on("click", function() {
-            updateTotal();
-        });
-
-        function updateTotal() {
-            let cartData = [];
-            $(".table-shopping-cart tr.table_row").each(function() {
-                let id = $(this).find("input.num-product").attr("name").replace("num-product", "");
-                let quantity = $(this).find("input.num-product").val();
-                cartData.push({
-                    id: id,
-                    quantity: quantity
-                });
-            });
-
-            $.ajax({
-                url: "update_total.php",
-                type: "POST",
-                data: {
-                    cart: cartData
-                },
-                dataType: "json",
-                success: function(response) {
-                    if (response.success) {
-                        $(".cart-total").text("$" + response.total.toFixed(2));
-                    } else {
-                        alert("Error updating total");
-                    }
-                }
-            });
-        }
-    });
-
-    paypal.Buttons({
-        createOrder: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '<?php echo number_format($total, 2); ?>'
-                    }
-                }]
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                alert('Transaction completed by ' + details.payer.name.given_name);
-                // Redirect to a success page
-                window.location.href = 'success.php';
-            });
-        }
-    }).render('#paypal-button-container');
-</script>
-<script>
-    $(document).ready(function() {
-        $("#update-cart").click(function() {
-            updateTotal();
-        });
-
-        function updateTotal() {
             let cartData = [];
             $(".table_row").each(function() {
                 let id = $(this).find(".num-product").data("id");
@@ -215,42 +327,63 @@ if (session_status() == PHP_SESSION_NONE) {
             });
 
             $.ajax({
-                url: "update_total.php",
+                url: "", // Send to the same file
                 type: "POST",
                 data: {
+                    action: "updateQuantities",
                     cart: cartData
                 },
                 dataType: "json",
                 success: function(response) {
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    location.reload();
+
+                }
+            });
+        });
+
+        $(".remove-item").on("click", function() {
+            let itemId = $(this).data("id");
+            $.ajax({
+                url: "", // Send to the same file
+                type: "POST",
+                data: {
+                    action: "removeItem",
+                    id: itemId
+                },
+                dataType: "json",
+                success: function(response) {
                     if (response.success) {
-                        $("#cart-total").text("$" + response.total.toFixed(2));
-                        $(".product-total").each(function(index) {
-                            $(this).text("$" + response.item_totals[index].toFixed(2));
-                        });
+                        // Reload the cart to reflect the removal
+                        location.reload();
                     } else {
-                        alert("Error updating total");
+                        alert("Error removing item from cart");
                     }
                 }
             });
-        }
-    });
+        });
 
-    paypal.Buttons({
-        createOrder: function(data, actions) {
-            let totalAmount = $("#cart-total").text().replace("$", "");
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: totalAmount
-                    }
-                }]
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                alert("Transaction completed by " + details.payer.name.given_name);
-                window.location.href = "success.php";
-            });
-        }
-    }).render("#paypal-button-container");
+        // PayPal
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                let totalAmount = $(".cart-total").text().replace("$", "");
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: totalAmount
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert("Transaction completed by " + details.payer.name.given_name);
+                    window.location.href = "success.php";
+                });
+            }
+        }).render("#paypal-button-container");
+    });
 </script>

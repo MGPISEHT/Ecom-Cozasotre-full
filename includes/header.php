@@ -70,7 +70,7 @@ session_start(); // Start the session
                     </div>
 
                     <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" name="cart" id="cart">
-                        <i class="zmdi zmdi-shopping-cart"></i>
+                        <a href="shoping-cart.php"><i class="zmdi zmdi-shopping-cart"></i></a>
                     </div>
 
                 </div>
