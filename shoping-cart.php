@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <?php include 'includes/head.php'; ?>
@@ -14,11 +18,11 @@
 
 
 	<!-- breadcrumb -->
-	<?php include 'includes/breadcrumb.php';?>
+	<?php include 'includes/breadcrumb.php'; ?>
 
 
 	<!-- Shoping Cart -->
-	<?php include 'includes/shopingCart.php';?>
+	<?php include 'includes/shopingCart.php'; ?>
 
 
 

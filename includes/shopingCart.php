@@ -144,7 +144,52 @@ if (isset($_POST['action']) && $_POST['action'] == 'updateQuantities') {
     exit();
 }
 ?>
+<?php
+include 'db/DBconnnect.php';
+// session_start();
 
+if (isset($_POST['add_to_cart'])) {
+	if (isset($_SESSION['shoping-cart'])) {
+		$product_array_ids = array_column($_SESSION['shoping-cart'], 'id');
+		if (!in_array($_POST['id'], $product_array_ids)) {
+			$product_array = array(
+				'id' => $_POST['id'],
+				'name' => $_POST['name'],
+				'image' => $_POST['image'],
+				'price' =>  $_POST['price'],
+				'stock_quantity' => $_POST['stock_quantity']
+			);
+
+			$_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
+		} else {
+			echo '<script>alert("Product was already to cart.")</script>';
+			echo '<script>window.location="index.php";</script>';
+		}
+	}
+	// if this the first products
+	else {
+		$product_id = $_POST['id'];
+		$product_name = $_POST['name'];
+		$product_image = $_POST['image'];
+		$product_price = $_POST['price'];
+		$product_quantity = $_POST['stock_quantity'];
+
+		$product_array = array(
+			'id' => $product_id,
+			'name' => $product_name,
+			'image' => $product_image,
+			'price' => $product_price,
+			'stock_quantity' => $product_quantity
+		);
+
+		$_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
+	}
+} else {
+	header('location: index.php');
+}
+
+
+?>
 <form class="bg0 p-t-75 p-b-85">
     <div class="container">
         <div class="row">
@@ -154,7 +199,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'updateQuantities') {
                         <table class="table-shopping-cart">
                             <tr class="table_head">
                                 <th class="column-1">Product</th>
-                                <th class="column-2"></th>
+                                <th class="column-2">Name</th>
                                 <th class="column-3">Price</th>
                                 <th class="column-4">Quantity</th>
                                 <th class="column-5">Total</th>
