@@ -1,7 +1,7 @@
 <?php
 session_start();
 // include db
-include '../config/DBconfig.php';
+include '../configs/DBconnect.php';
 
 // include function register account
 if (isset($_POST['register_btn'])) {

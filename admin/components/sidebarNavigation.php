@@ -52,20 +52,14 @@
         </li>
 
         <li class="sidebar-item">
-            <a class="sidebar-link d-flex align-items-center toggle-submenu" href="javascript:void(0);">
+            <a href="viewOrder.php" class="sidebar-link d-flex align-items-center toggle-submenu" href="javascript:void(0);">
+                <span class="hide-menu">Management Orders</span>
                 <span class="me-2">
                     <i class="fa-solid fa-cart-shopping"></i>
-
-
                 </span>
-                <span class="hide-menu">Orders</span>
-                <i class="fa fa-chevron-down ms-auto"></i>
+                <!-- <i class="fa fa-chevron-down ms-auto"></i> -->
             </a>
-            <ul class="submenu">
-                <li>
-                    <a href="manageOrders.php" class="submenu-link">Manage Orders</a>
-                </li>
-            </ul>
+            
         </li>
 
         <li class="sidebar-item">

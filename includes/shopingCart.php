@@ -184,9 +184,10 @@ if (isset($_POST['add_to_cart'])) {
 
 		$_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
 	}
-} else {
-	header('location: index.php');
-}
+} 
+// else {
+// 	header('location: index.php');
+// }
 
 
 ?>

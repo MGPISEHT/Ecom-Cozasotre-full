@@ -16,7 +16,7 @@ session_start(); // Start the session
                 <div class="right-top-bar flex-w h-full">
                     <a href="#" class="flex-c-m trans-04 p-lr-25"> Help & FAQs </a>
 
-                    <a href="#" class="flex-c-m trans-04 p-lr-25"> My Account </a>
+                    <a href="./login.php" class="flex-c-m trans-04 p-lr-25"> My Account </a>
 
                     <a href="#" class="flex-c-m trans-04 p-lr-25"> EN </a>
 
@@ -127,7 +127,7 @@ session_start(); // Start the session
                 <div class="right-top-bar flex-w h-full">
                     <a href="#" class="flex-c-m p-lr-10 trans-04"> Help & FAQs </a>
 
-                    <a href="#" class="flex-c-m p-lr-10 trans-04"> My Account </a>
+                    <a href="login.php" class="flex-c-m p-lr-10 trans-04"> My Account </a>
 
                     <a href="#" class="flex-c-m p-lr-10 trans-04"> EN </a>
 
