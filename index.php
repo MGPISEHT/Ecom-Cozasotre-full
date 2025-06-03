@@ -29,7 +29,7 @@
   </div>
 
   <!-- Modal1 -->
-  <?php include 'includes/modal.php' ?>
+  <!-- <?php include 'includes/modal.php' ?> -->
 
   <!--===============================================================================================-->
   <script src="vendor/jquery/jquery-3.2.1.min.js"></script>

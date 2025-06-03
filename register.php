@@ -25,7 +25,7 @@ if (isset($_POST['register_btn'])) {
             $check_stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email OR username = :username");
             $check_stmt->execute([':email' => $email, ':username' => $username]);
             if ($check_stmt->fetchColumn() > 0) {
-                $message = "ឈ្មោះអ្នកប្រើប្រាស់ ឬអាសយដ្ឋានអ៊ីមែលនេះមានរួចហើយ។";
+                $message = "This username or email address already exists.";
             } else {
                 $sql = "INSERT INTO users (username, password, email, role)
                         VALUES (:username, :password, :email, :role)";
@@ -38,13 +38,13 @@ if (isset($_POST['register_btn'])) {
                 $stmt->bindParam(':role', $role);
 
                 $stmt->execute();
-                $_SESSION['success_message'] = "ការចុះឈ្មោះអ្នកប្រើប្រាស់បានជោគជ័យ! សូមចូល។"; 
+                $_SESSION['success_message'] = "User registration successful! Please log in."; 
                 header("Location: login.php");
                 exit();
             }
         } catch (PDOException $e) {
             error_log("Register PDO Error: " . $e->getMessage()); 
-            $message = "មានបញ្ហាបច្ចេកទេសកើតឡើង។ សូមព្យាយាមម្តងទៀតនៅពេលក្រោយ។"; 
+            $message = "Technical specifications are coming up. Please wait a moment."; 
         }
     }
 }

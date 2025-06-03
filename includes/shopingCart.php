@@ -149,42 +149,42 @@ include 'db/DBconnnect.php';
 // session_start();
 
 if (isset($_POST['add_to_cart'])) {
-	if (isset($_SESSION['shoping-cart'])) {
-		$product_array_ids = array_column($_SESSION['shoping-cart'], 'id');
-		if (!in_array($_POST['id'], $product_array_ids)) {
-			$product_array = array(
-				'id' => $_POST['id'],
-				'name' => $_POST['name'],
-				'image' => $_POST['image'],
-				'price' =>  $_POST['price'],
-				'stock_quantity' => $_POST['stock_quantity']
-			);
+    if (isset($_SESSION['shoping-cart'])) {
+        $product_array_ids = array_column($_SESSION['shoping-cart'], 'id');
+        if (!in_array($_POST['id'], $product_array_ids)) {
+            $product_array = array(
+                'id' => $_POST['id'],
+                'name' => $_POST['name'],
+                'image' => $_POST['image'],
+                'price' =>  $_POST['price'],
+                'stock_quantity' => $_POST['stock_quantity']
+            );
 
-			$_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
-		} else {
-			echo '<script>alert("Product was already to cart.")</script>';
-			echo '<script>window.location="index.php";</script>';
-		}
-	}
-	// if this the first products
-	else {
-		$product_id = $_POST['id'];
-		$product_name = $_POST['name'];
-		$product_image = $_POST['image'];
-		$product_price = $_POST['price'];
-		$product_quantity = $_POST['stock_quantity'];
+            $_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
+        } else {
+            echo '<script>alert("Product was already to cart.")</script>';
+            echo '<script>window.location="index.php";</script>';
+        }
+    }
+    // if this the first products
+    else {
+        $product_id = $_POST['id'];
+        $product_name = $_POST['name'];
+        $product_image = $_POST['image'];
+        $product_price = $_POST['price'];
+        $product_quantity = $_POST['stock_quantity'];
 
-		$product_array = array(
-			'id' => $product_id,
-			'name' => $product_name,
-			'image' => $product_image,
-			'price' => $product_price,
-			'stock_quantity' => $product_quantity
-		);
+        $product_array = array(
+            'id' => $product_id,
+            'name' => $product_name,
+            'image' => $product_image,
+            'price' => $product_price,
+            'stock_quantity' => $product_quantity
+        );
 
-		$_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
-	}
-} 
+        $_SESSION['shopping-cart'][$product_id] = $product_array; // session ths store all item is array
+    }
+}
 // else {
 // 	header('location: index.php');
 // }
@@ -287,31 +287,34 @@ if (isset($_POST['add_to_cart'])) {
                         <h4 class="mtext-109 cl2 p-b-30">
                             Bassic Details
                         </h4>
-                        <form method="post">
+                        <!-- form checkout -->
+                        <form method="post" accept="place_order.php" id="checkout-form">
                             <div class="bor8 bg0 m-b-22">
-                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="username" placeholder="Username">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" id="checkout-username" type="text" name="username" placeholder="Username">
                             </div>
 
                             <div class="bor8 bg0 m-b-22">
-                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="email" name="email" placeholder="Email Address">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" id="checkout-email" type="email" name="email" placeholder="Email Address">
                             </div>
 
                             <div class="bor8 bg0 m-b-22">
-                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="phone" name="phone" placeholder="Phone">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" id="checkout-phone" type="phone" name="phone" placeholder="Phone">
                             </div>
 
                             <div class="bor8 bg0 m-b-22">
-                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="pin-code" placeholder="Pin Code">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" id="checkout-city" type="text" name="city" placeholder="City">
                             </div>
 
                             <div class="bor8 bg0 m-b-22">
-                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="address" name="address" placeholder="Address">
+                                <input class="stext-111 cl8 plh3 size-111 p-lr-15" id="checkout-address" type="address" name="address" placeholder="Address">
                             </div>
+                            <!-- <input type="submit" name="checkout" value="Checkout" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn> -->
+
                         </form>
 
                     </div>
 
-                    <div class="flex-w flex-t p-t-27 p-b-33">
+                    <div class=" flex-w flex-t p-t-27 p-b-33">
                         <div class="size-208">
                             <span class="mtext-101 cl2">
                                 Total:
@@ -323,6 +326,8 @@ if (isset($_POST['add_to_cart'])) {
                                 $<?php echo number_format($total, 2); ?>
                             </span>
                         </div>
+                        <!-- form submite checkout -->
+
                     </div>
 
                     <div id="paypal-button-container"></div>
@@ -335,36 +340,50 @@ if (isset($_POST['add_to_cart'])) {
 <script src="https://www.paypal.com/sdk/js?client-id=AfkfEA59DV9179OsB5kuRYFTzdu4Ap7KZTKe9peAbqHH7Q0L5JFJeQcDFKP9qEpvObffMNaTVILlUfqC&currency=USD"></script>
 <script>
     $(document).ready(function() {
-        // Event listener for quantity changes using event delegation
-        $(".table-shopping-cart").on("change", ".num-product", function() {
-            updateCartTotals(); // Update totals on quantity change
-        });
-
-        // Function to update the cart total and individual product totals
-        function updateCartTotals() {
+        // Function to update the cart total and individual product totals on the UI
+        function updateCartTotalsUI() {
             let grandTotal = 0;
-            let itemTotals = [];
             $(".table_row").each(function() {
                 let quantity = parseInt($(this).find(".num-product").val());
                 let price = parseFloat($(this).find(".price-per-item").data("price"));
                 let itemTotal = quantity * price;
                 $(this).find(".product-total").text("$" + itemTotal.toFixed(2));
                 grandTotal += itemTotal;
-                itemTotals.push(itemTotal.toFixed(2)); // Store formatted item total
             });
             $(".cart-total").text("$" + grandTotal.toFixed(2));
             $(".cart-subtotal").text("$" + grandTotal.toFixed(2));
-            return {
-                grandTotal: grandTotal.toFixed(2),
-                itemTotals: itemTotals
-            }; // Return the totals
+            $("#total_amount_input").val(grandTotal.toFixed(2)); // Update hidden input for checkout
         }
 
-        // Event listener for the "Update Amount" button
+        // Event listener for quantity input changes
+        $(".table-shopping-cart").on("input", ".num-product", function() {
+            // Ensure quantity is at least 1
+            if (parseInt($(this).val()) < 1 || isNaN(parseInt($(this).val()))) {
+                $(this).val(1);
+            }
+            updateCartTotalsUI(); // Update UI immediately on input change
+        });
+
+        // Event listener for quantity increase/decrease buttons
+        $(".table-shopping-cart").on("click", ".btn-num-product-down", function() {
+            let $input = $(this).next(".num-product");
+            let currentVal = parseInt($input.val());
+            if (currentVal > 1) {
+                $input.val(currentVal - 1).trigger('input'); // Trigger input event to update totals
+            }
+        });
+
+        $(".table-shopping-cart").on("click", ".btn-num-product-up", function() {
+            let $input = $(this).prev(".num-product");
+            let currentVal = parseInt($input.val());
+            $input.val(currentVal + 1).trigger('input'); // Trigger input event to update totals
+        });
+
+        // Event listener for the "Update Cart" button (sends data to PHP)
         $(".update-cart-btn").on("click", function() {
             let cartData = [];
             $(".table_row").each(function() {
-                let id = $(this).find(".num-product").data("id");
+                let id = $(this).data("id");
                 let quantity = $(this).find(".num-product").val();
                 cartData.push({
                     id: id,
@@ -373,7 +392,7 @@ if (isset($_POST['add_to_cart'])) {
             });
 
             $.ajax({
-                url: "", // Send to the same file
+                url: "", // Send to the same file (this script)
                 type: "POST",
                 data: {
                     action: "updateQuantities",
@@ -381,16 +400,29 @@ if (isset($_POST['add_to_cart'])) {
                 },
                 dataType: "json",
                 success: function(response) {
-                    location.reload();
+                    if (response.success) {
+                        // Update UI with new totals from server response
+                        $(".cart-total").text("$" + response.total);
+                        $(".cart-subtotal").text("$" + response.total);
+                        $("#total_amount_input").val(response.total);
+
+                        // Update individual item totals
+                        $(".table_row").each(function(index) {
+                            $(this).find(".product-total").text("$" + response.item_totals[index]);
+                        });
+                        console.log("Cart updated successfully: " + response.message);
+                    } else {
+                        console.error("Failed to update cart: " + response.message);
+                    }
                 },
                 error: function(xhr, status, error) {
-                    console.error("AJAX error:", error);
-                    location.reload();
-
+                    console.error("AJAX error updating quantities:", error);
+                    // Optionally, show a user-friendly error message
                 }
             });
         });
 
+        // Event listener for "Remove" item buttons
         $(".remove-item").on("click", function() {
             let itemId = $(this).data("id");
             $.ajax({
@@ -412,10 +444,16 @@ if (isset($_POST['add_to_cart'])) {
             });
         });
 
-        // PayPal
+        // PayPal Integration
         paypal.Buttons({
             createOrder: function(data, actions) {
+                // Get the current total from the UI (which should be updated by JS)
                 let totalAmount = $(".cart-total").text().replace("$", "");
+                if (parseFloat(totalAmount) <= 0) {
+                    console.error("Cannot create order with zero or negative total amount.");
+                    // In a real application, you'd show a user-friendly error modal here.
+                    return false; // Prevent order creation
+                }
                 return actions.order.create({
                     purchase_units: [{
                         amount: {
@@ -426,10 +464,25 @@ if (isset($_POST['add_to_cart'])) {
             },
             onApprove: function(data, actions) {
                 return actions.order.capture().then(function(details) {
-                    alert("Transaction completed by " + details.payer.name.given_name);
-                    window.location.href = "success.php";
+                    // In a real application, you would send this 'details' object to your server
+                    // to verify the payment and finalize the order in your database.
+                    console.log("Transaction completed by " + details.payer.name.given_name);
+                    // Instead of alert, use a custom modal or redirect with a success message
+                    // alert("Transaction completed by " + details.payer.name.given_name);
+                    window.location.href = "success.php"; // Redirect to a success page
                 });
+            },
+            onCancel: function(data) {
+                console.log('Order cancelled by the user.');
+                // Optionally, show a message to the user
+            },
+            onError: function(err) {
+                console.error('An error occurred during PayPal transaction:', err);
+                // In a real application, show an error modal to the user
             }
         }).render("#paypal-button-container");
+
+        // Initial update of cart totals when the page loads
+        updateCartTotalsUI();
     });
 </script>
