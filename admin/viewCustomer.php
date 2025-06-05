@@ -6,10 +6,10 @@ include './pages/Users/editeUser.php';
 
 // Fetch all users from the database
 try {
-    $sql = "SELECT * FROM order_items";
+    $sql = "SELECT * FROM customers";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    $orderItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
@@ -18,7 +18,7 @@ try {
 <html lang="en">
 
 <?php include 'components/head.php'; ?>
-<title>Customers</title>
+<title>Management Customer</title>
 
 <body>
     <!--  Body Wrapper -->
@@ -95,30 +95,30 @@ try {
             <div class="container-fluid">
                 <div class="container-fluid">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="modal-title" id="addUserModalLabel">Add Orders</h5>
+                        <h5 class="modal-title" id="addUserModalLabel">Add Customer</h5>
                         <button class="btn btn-danger text-white" data-toggle="modal" data-target="#addUserModal">Add Order</button>
                     </div>
                     <div class="container mt-3">
                         <table class="table table-bordered">
                             <thead class="bg-info">
                                 <tr>
-                                    <th class="text-white">Order ID</th>
-                                    <th class="text-white">Product Name</th>
-                                    <th class="text-white">Quantity</th>
-                                    <th class="text-white">Prices</th>
-                                    <th class="text-white">Order Date</th>
+                                    <th class="text-white"> Name</th>
+                                    <th class="text-white">Email</th>
+                                    <th class="text-white">Phone</th>
+                                    <th class="text-white">Shipping Address</th>
+                                    <th class="text-white">Created Date</th>
                                     <th class="text-white">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (count($orderItems) > 0): ?>
-                                    <?php foreach ($orderItems as $item): ?>
+                                <?php if (count($customers) > 0): ?>
+                                    <?php foreach ($customers as $key): ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($item['order_id']); ?></td>
-                                            <td><?php echo htmlspecialchars($item['product_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                                            <td><?php echo htmlspecialchars($item['price']); ?></td>
-                                            <td><?php echo htmlspecialchars($item['order_date']); ?></td>
+                                            <td><?php echo htmlspecialchars($key['name']); ?></td>
+                                            <td><?php echo htmlspecialchars($key['email']); ?></td>
+                                            <td><?php echo htmlspecialchars($key['phone']); ?></td>
+                                            <td><?php echo htmlspecialchars($key['shipping_address']); ?></td>
+                                            <td><?php echo htmlspecialchars($key['created_at']); ?></td>
                                             <td>
                                                 <div class="dropdown show">
                                                     <a class="btn btn-secondary dropdown-toggle" href="#" role="button"

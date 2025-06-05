@@ -34,7 +34,7 @@
 
         </li>
 
-        <li class="sidebar-item">
+        <!-- <li class="sidebar-item">
             <a class="sidebar-link d-flex align-items-center toggle-submenu" href="javascript:void(0);">
                 <span class="me-2">
                     <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -49,7 +49,7 @@
                 </li>
 
             </ul>
-        </li>
+        </li> -->
 
         <li class="sidebar-item">
             <a href="viewOrder.php" class="sidebar-link d-flex align-items-center toggle-submenu" href="javascript:void(0);">
@@ -61,7 +61,16 @@
             </a>
             
         </li>
-
+        <li class="sidebar-item">
+            <a href="viewCustomer.php" class="sidebar-link d-flex align-items-center toggle-submenu" href="javascript:void(0);">
+                <span class="hide-menu">Management Customer</span>
+                <span class="me-2">
+                    <i class="fa-solid fa-users"></i>
+                </span>
+                <!-- <i class="fa fa-chevron-down ms-auto"></i> -->
+            </a>
+            
+        </li>
         <li class="sidebar-item">
             <a href="viewUsers.php" class="sidebar-link d-flex align-items-center toggle-submenu" href="javascript:void(0);">
                 <span class="hide-menu">Management Users</span>
