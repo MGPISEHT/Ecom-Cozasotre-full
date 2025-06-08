@@ -286,6 +286,38 @@ if (isset($_POST['update_product'])) {
     }
 }
 
+// ========================== Delete Products ==================================
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $productIdToDelete = $_GET['id'];
+
+    try {
+        // Prepare the SQL query to delete the product
+        $sql = "DELETE FROM products WHERE id = :id";
+        $stmt = $conn->prepare($sql);
+
+        // Bind the parameter
+        $stmt->bindParam(':id', $productIdToDelete, PDO::PARAM_INT);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Check if any rows were affected (meaning the product existed)
+        if ($stmt->rowCount() > 0) {
+            // Redirect to the products page with a success message
+            header("Location: viewProducts.php?message=Product deleted successfully!");
+            exit();
+        } else {
+            // Redirect with an error message if the product wasn't found
+            header("Location: viewProducts.php?error=Product not found!");
+            exit();
+        }
+    } catch (PDOException $e) {
+        // Display an error message if there's a database issue
+        header("Location: viewProducts.php?error=Error deleting product: " . urlencode($e->getMessage()));
+        exit();
+    }
+}
+
 // ========================== add Users ================================
 
 if (isset($_POST['add-user'])) {

@@ -60,13 +60,13 @@
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ?>
 
-        <div class="row isotope-grid">
+        <div class="row isotope-grid" >
             <?php foreach ($products as $product) { ?>
-                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women" >
                     <!-- Block2 -->
                     <div class="block2">
                         <div class="block2-pic hov-img0">
-                            <img src="<?php echo htmlspecialchars('uploads/' . basename($product['image'] ?? '')); ?>" alt="IMG-PRODUCT" />
+                            <img  src="<?php echo htmlspecialchars('uploads/' . basename($product['image'] ?? '')); ?>" alt="IMG-PRODUCT" />
                             <a onclick="add-to-cart" href="javascript:void(0)" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-add-to-cart" data-id="<?php echo $product['id']; ?>" data-name="<?php echo htmlspecialchars($product['name']); ?>" data-price="<?php echo number_format($product['price'], 2); ?>" data-image="<?php echo htmlspecialchars('uploads/' . basename($product['image'] ?? '')); ?>" data-quantity="1">
                                 ADD TO CART
                             </a>

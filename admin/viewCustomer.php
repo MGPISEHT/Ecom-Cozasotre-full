@@ -1,7 +1,7 @@
 <?php
 // Include the database connection file
 include("./configs/DBconnect.php");
-include './pages/Users/addUser.php';
+include './pages/Customers/addCustomer.php';
 include './pages/Users/editeUser.php';
 
 // Fetch all users from the database
@@ -96,7 +96,7 @@ try {
                 <div class="container-fluid">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="modal-title" id="addUserModalLabel">Add Customer</h5>
-                        <button class="btn btn-danger text-white" data-toggle="modal" data-target="#addUserModal">Add Order</button>
+                        <button class="btn btn-danger text-white" data-toggle="modal" data-target="#addModalCustomer">Add Customer</button>
                     </div>
                     <div class="container mt-3">
                         <table class="table table-bordered">

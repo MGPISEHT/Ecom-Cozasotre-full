@@ -359,6 +359,10 @@ $_SESSION['total_cart_cost'] = $total;
                             </div>
 
                             <div class="bor8 bg0 m-b-22">
+                                <div id="paypal-button-container" class="btn" type="submit" id="checkout-btn" value="Place Order" name="place_order" >
+                                       
+                                </div>
+                                
                                 <div id="paypal-button-container" class="btn" type="submit" id="checkout-btn" value="Place Order" name="place_order">
 
                                 </div>

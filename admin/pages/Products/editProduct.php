@@ -1,38 +1,8 @@
 <?php
-// include '../configs/DBconnect.php'; // Database connection
 
-// Check if the product ID is provided (This part seems to be commented out, but is important)
-// if (!isset($_GET['id']) || empty($_GET['id'])) {
-//     die("Product ID is missing.");
-// }
-
-// $product = $_GET['id'];
-
-// // Fetch product details (This part is crucial for pre-filling the form)
-// $stmt = $conn->prepare("SELECT * FROM products WHERE id = :id");
-// // $stmt->execute(['id' => $product]);
-// $product = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// if (!$product) {
-//     die("Product not found.");
-// }
-
-// Fetch categories for dropdown
 $stmt = $conn->prepare("SELECT * FROM categories");
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-//     $uploadDir = 'uploads/';
-//     if (!is_dir($uploadDir)) {
-//         mkdir($uploadDir, 0777, true);
-//     }
-//     $imageName = uniqid() . '_' . basename($_FILES['image']['name']);
-//     $imagePath = $uploadDir . $imageName;
-//     if (move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
-//         $image = $imagePath;
-//     }
-// }
 
 ?>
 
@@ -62,12 +32,14 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="container">
 
                                 <form action="function.php" method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product['id'] ?? ''); ?>">
+                                    <input type="hidden" name="product_id" 
+                                    value="<?php echo htmlspecialchars($product['id'] ?? ''); ?>">
 
                                     <div class="mb-3">
                                         <label for="current_image">Current Image:</label>
                                         <div>
-                                            <img width="50" src="<?php echo htmlspecialchars($product['image'] ?? ''); ?>" alt="Product Image" style="max-width: 150px; height: auto; margin-bottom: 5px;">
+                                            <img width="50" src="<?php echo htmlspecialchars($product['image'] ?? ''); ?>"
+                                                alt="Product Image" style="max-width: 150px; height: auto; margin-bottom: 5px;">
                                         </div>
                                     </div>
 
@@ -79,29 +51,38 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                     <div class="mb-3">
                                         <label for="name">Name:</label>
-                                        <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($product['name'] ?? ''); ?>" required>
+                                        <input type="text" id="name" name="name" class="form-control"
+                                            value="<?php echo htmlspecialchars($product['name'] ?? ''); ?>" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="description">Description:</label>
-                                        <textarea id="description" name="description" class="form-control" required><?php echo htmlspecialchars($product['description'] ?? ''); ?></textarea>
+                                        <textarea id="description" name="description" class="form-control" required>
+                                            <?php echo htmlspecialchars($product['description'] ?? ''); ?>
+                                        </textarea>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="price">Price:</label>
-                                        <input type="number" id="price" name="price" class="form-control" value="<?php echo htmlspecialchars($product['price'] ?? ''); ?>" step="0.01" required>
+                                        <input type="number" id="price" name="price" class="form-control" 
+                                        value="<?php echo htmlspecialchars($product['price'] ?? ''); ?>" 
+                                        step="0.01" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="stock_quantity">Stock:</label>
-                                        <input type="number" id="stock_quantity" name="stock_quantity" class="form-control" value="<?php echo htmlspecialchars($product['stock_quantity'] ?? ''); ?>" step="1" required>
+                                        <input type="number" id="stock_quantity" name="stock_quantity" class="form-control" 
+                                        value="<?php echo htmlspecialchars($product['stock_quantity'] ?? ''); ?>" 
+                                        step="1" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="category_id">Category:</label>
                                         <select id="category_id" name="category_id" class="form-control" required>
                                             <?php foreach ($categories as $category) { ?>
-                                                <option value="<?php echo $category['id']; ?>" <?php echo ($category['id'] == $product['category_id']) ? 'selected' : ''; ?>>
+                                                <option 
+                                                    value="<?php echo $category['id']; ?>" <?php 
+                                                    echo ($category['id'] == $product['category_id']) ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($category['title']); ?>
                                                 </option>
                                             <?php } ?>

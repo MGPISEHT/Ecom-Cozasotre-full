@@ -1,31 +1,26 @@
 <?php
-// Include the database connection file
-include("configs/DBconnect.php");
-
-// Check if the 'id' parameter is set in the URL
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+session_start();
+include '../configs/DBconnect.php'; 
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $orderItemIdToDelete = intval($_GET['id']); 
 
     try {
-        // Prepare the SQL query to delete the order
-        $sql = "DELETE FROM orders WHERE id = :id";
+        $sql = "DELETE FROM order_items WHERE item_id = :item_id";
         $stmt = $conn->prepare($sql);
 
-        // Bind the parameter
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-
-        // Execute the query
+        // Bind the parameter to prevent SQL injection
+        $stmt->bindParam(':item_id', $orderItemIdToDelete, PDO::PARAM_INT);
         $stmt->execute();
-
-        // Redirect back to the orders page with a success message
-        header("Location: viewOrders.php?message=Order deleted successfully!");
-        exit();
+        if ($stmt->rowCount() > 0) {
+            $_SESSION['message'] = "Order item deleted successfully!";
+        } else {
+            $_SESSION['message'] = "Order item not found or already deleted.";
+        }
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
+        $_SESSION['message'] = "Database Error: Failed to delete order item. " . $e->getMessage();
     }
 } else {
-    // If 'id' is not set, redirect back to the orders page
-    header("Location: viewOrders.php");
-    exit();
+    $_SESSION['message'] = "Invalid order item ID provided for deletion.";
 }
+header("Location: ../viewOrder.php");
 ?>
